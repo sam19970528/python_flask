@@ -1,6 +1,7 @@
 from flask import Flask,jsonify
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from controllers.backend.user import backend_user_ctrl
@@ -19,11 +20,33 @@ app = Flask(__name__, static_folder='static')
 app.json.ensure_ascii = False
 app.config['JWT_SECRET_KEY'] = jwt_secret_key
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:sam19970528@localhost:3306/ec"
+db_uri = 'mysql+pymysql://root:peipei!!!0528@34.121.3.152:3306/pythonbro'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 Base = declarative_base()
+# 初始化 SQLAlchemy
 
-engine = create_engine("mysql+pymysql://root:sam19970528@localhost:3306/ec")
-img_folder = os.path.join(app.static_folder)
+db = SQLAlchemy(app)
+
+# 定义模型
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+# 创建数据库表
+db.create_all()
+
+# 路由和视图函数
+@app.route('/')
+def index():
+    return 'Hello, World!'
+
+
+# engine = create_engine(db_uri)
+# img_folder = os.path.join(app.static_folder)
 
 
 def create_session():
@@ -45,4 +68,4 @@ app.register_blueprint(back_category_ctrl, url_prefix="/backend/category")
 app.register_blueprint(app_product_ctrl, url_prefix="/app/product")
 
 if __name__ == '__main__':
-  app.run(debug=True,port=3333)
+  app.run(debug=True,port=5000)
